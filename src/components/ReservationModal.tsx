@@ -92,7 +92,7 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    to: "junjun627@naver.com",
+                    to: "kmwbb1208@naver.com",
                     subject: `[하트솔로] 새로운 예약 - ${formData.name}`,
                     text: textContent,
                     html: htmlContent,
