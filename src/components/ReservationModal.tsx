@@ -86,7 +86,7 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 예약 시간: ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
             `;
 
-            const response = await fetch("http://52.78.196.117:8000/api/email/send", {
+            const response = await fetch("https://api.reportable.xyz/email/send", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
