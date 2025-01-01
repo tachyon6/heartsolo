@@ -10,50 +10,79 @@ export default async function handler(request: VercelRequest, response: VercelRe
     }
 
     try {
+        // 환경 변수 체크
+        if (!process.env.GOOGLE_SHEET_ID) {
+            throw new Error('GOOGLE_SHEET_ID is not set');
+        }
+        if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+            throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL is not set');
+        }
+        if (!process.env.GOOGLE_PRIVATE_KEY) {
+            throw new Error('GOOGLE_PRIVATE_KEY is not set');
+        }
+
         const data = request.body;
+        console.log('Received data:', data);
 
         // Google Sheets API 인증
         const auth = new google.auth.GoogleAuth({
             credentials: {
                 client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-                private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+                private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
             },
-            scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
 
-        const sheets = google.sheets({ version: "v4", auth });
+        console.log('Auth configured');
+
+        const sheets = google.sheets({ version: 'v4', auth });
+        console.log('Sheets client created');
 
         // 데이터 포맷팅
-        const values = [
-            [
-                new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }), // 예약 시간
-                data.name,
-                data.age,
-                data.gender,
-                data.phone,
-                data.equipment,
-                data.level,
-                data.package,
-                data.height,
-                data.footSize,
-                data.shuttle,
-                data.date,
-            ],
-        ];
+        const values = [[
+            new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }), // 예약 시간
+            data.name,
+            data.age,
+            data.gender,
+            data.phone,
+            data.equipment,
+            data.level,
+            data.package,
+            data.height,
+            data.footSize,
+            data.shuttle,
+            data.date,
+        ]];
+
+        console.log('Formatted values:', values);
 
         // Google Sheets에 데이터 추가
-        await sheets.spreadsheets.values.append({
+        const appendResult = await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: RANGE,
-            valueInputOption: "USER_ENTERED",
+            valueInputOption: 'USER_ENTERED',
             requestBody: {
                 values,
             },
         });
 
-        return response.status(200).json({ message: "예약이 완료되었습니다." });
-    } catch (error) {
-        console.error("Error:", error);
-        return response.status(500).json({ message: "예약 중 오류가 발생했습니다." });
+        console.log('Append result:', appendResult.data);
+
+        return response.status(200).json({ 
+            message: '예약이 완료되었습니다.',
+            success: true 
+        });
+    } catch (error: any) {
+        console.error('Detailed error:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+        });
+
+        return response.status(500).json({ 
+            message: '예약 중 오류가 발생했습니다.',
+            error: error.message,
+            success: false
+        });
     }
 }
