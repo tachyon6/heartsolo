@@ -22,6 +22,7 @@ export interface ReservationData {
 }
 
 export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModalProps) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<ReservationData>({
         name: "",
         age: "",
@@ -38,19 +39,68 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
         try {
-            const response = await fetch("/api/submitReservation", {
+            // HTML 형식의 이메일 내용 생성
+            const htmlContent = `
+                <h2>새로운 예약이 접수되었습니다</h2>
+                <h3>신청자 정보</h3>
+                <ul>
+                    <li><strong>이름:</strong> ${formData.name}</li>
+                    <li><strong>나이:</strong> ${formData.age}</li>
+                    <li><strong>성별:</strong> ${formData.gender}</li>
+                    <li><strong>연락처:</strong> ${formData.phone}</li>
+                </ul>
+                <h3>예약 정보</h3>
+                <ul>
+                    <li><strong>장비:</strong> ${formData.equipment}</li>
+                    <li><strong>실력:</strong> ${formData.level}</li>
+                    <li><strong>패키지:</strong> ${formData.package}</li>
+                    <li><strong>키:</strong> ${formData.height}cm</li>
+                    <li><strong>발사이즈:</strong> ${formData.footSize}mm</li>
+                    <li><strong>셔틀:</strong> ${formData.shuttle}</li>
+                    <li><strong>희망날짜:</strong> ${formData.date}</li>
+                </ul>
+                <p>예약 시간: ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p>
+            `;
+
+            // 텍스트 형식의 이메일 내용 생성
+            const textContent = `
+새로운 예약이 접수되었습니다
+
+신청자 정보
+- 이름: ${formData.name}
+- 나이: ${formData.age}
+- 성별: ${formData.gender}
+- 연락처: ${formData.phone}
+
+예약 정보
+- 장비: ${formData.equipment}
+- 실력: ${formData.level}
+- 패키지: ${formData.package}
+- 키: ${formData.height}cm
+- 발사이즈: ${formData.footSize}mm
+- 셔틀: ${formData.shuttle}
+- 희망날짜: ${formData.date}
+
+예약 시간: ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
+            `;
+
+            const response = await fetch("http://52.78.196.117:8000/api/email/send", {
                 method: "POST",
-                body: JSON.stringify(formData),
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    to: "contact@myquark.app",
+                    subject: `[하트솔로] 새로운 예약 - ${formData.name}`,
+                    text: textContent,
+                    html: htmlContent,
+                }),
             });
 
-            const result = await response.json();
-
             if (!response.ok) {
-                throw new Error(result.message || "예약 중 오류가 발생했습니다.");
+                throw new Error("예약 중 오류가 발생했습니다.");
             }
 
             alert("예약이 완료되었습니다!");
@@ -59,6 +109,8 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
         } catch (error) {
             console.error("Error:", error);
             alert("예약 중 오류가 발생했습니다. 다시 시도해주세요.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -235,8 +287,38 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                     </div>
 
                     <div className='flex justify-end mt-6'>
-                        <button type='submit' className='bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700'>
-                            예약하기
+                        <button
+                            type='submit'
+                            className='bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2'
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <svg
+                                        className='animate-spin h-5 w-5 text-white'
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        fill='none'
+                                        viewBox='0 0 24 24'
+                                    >
+                                        <circle
+                                            className='opacity-25'
+                                            cx='12'
+                                            cy='12'
+                                            r='10'
+                                            stroke='currentColor'
+                                            strokeWidth='4'
+                                        ></circle>
+                                        <path
+                                            className='opacity-75'
+                                            fill='currentColor'
+                                            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                                        ></path>
+                                    </svg>
+                                    예약 처리중...
+                                </>
+                            ) : (
+                                "예약하기"
+                            )}
                         </button>
                     </div>
                 </form>
