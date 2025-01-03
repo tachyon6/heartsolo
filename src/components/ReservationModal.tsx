@@ -224,11 +224,46 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                 className='w-full px-3 py-2 border rounded-md'
                                 required
                             >
-                                <option value='기본'>올인클루시브 (240,000원)</option>
-                                <option value='중급'>장비 개별 준비 (160,000원)</option>
+                                <option value='기본'>올인클루시브 (160,000원)</option>
                                 <option value='프리미엄'>파티 미참여 (100,000원)</option>
                             </select>
                             <p className='text-xs text-gray-500 mt-1'>* 가격은 1인 기준입니다</p>
+                        </div>
+
+                        {/* 추가 옵션 */}
+                        <div className='col-span-2'>
+                            <label className='block text-sm font-medium text-gray-700 mb-3'>추가 옵션</label>
+                            <div className='space-y-3'>
+                                <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
+                                    <label className='flex items-center gap-2'>
+                                        <input
+                                            type='checkbox'
+                                            name='rental_equipment'
+                                            className='rounded text-blue-600'
+                                        />
+                                        <span>장비 렌탈 (스키/보드)</span>
+                                    </label>
+                                    <span className='text-blue-600 font-medium'>15,000원</span>
+                                </div>
+                                <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
+                                    <label className='flex items-center gap-2'>
+                                        <input
+                                            type='checkbox'
+                                            name='rental_clothes'
+                                            className='rounded text-blue-600'
+                                        />
+                                        <span>의류 렌탈</span>
+                                    </label>
+                                    <span className='text-blue-600 font-medium'>10,000원</span>
+                                </div>
+                                <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
+                                    <label className='flex items-center gap-2'>
+                                        <input type='checkbox' name='lift_ticket' className='rounded text-blue-600' />
+                                        <span>리프트권 (4시간)</span>
+                                    </label>
+                                    <span className='text-blue-600 font-medium'>45,000원</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* 신체 정보 */}
