@@ -116,6 +116,18 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
+        if (name === "date" && value) {
+            const selectedDate = new Date(value);
+            const dayOfWeek = selectedDate.getDay();
+
+            if (dayOfWeek !== 6) {
+                // 6은 토요일을 의미
+                alert("죄송합니다. 현재 토요일만 예약이 가능합니다.");
+                return;
+            }
+        }
+
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -308,7 +320,9 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                         </div>
 
                         <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>희망 날짜 (출발일)</label>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                희망 날짜 (토요일만 가능)
+                            </label>
                             <input
                                 type='date'
                                 name='date'
@@ -317,7 +331,7 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                 className='w-full px-3 py-2 border rounded-md'
                                 required
                             />
-                            <p className='text-xs text-gray-500 mt-1'>* 선택하신 날짜에 출발하여 다음날 귀가합니다</p>
+                            <p className='text-xs text-red-500 mt-1'>* 토요일만 예약 가능합니다.</p>
                         </div>
                     </div>
 
