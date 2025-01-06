@@ -19,6 +19,9 @@ export interface ReservationData {
     footSize: string;
     shuttle: "기본(1만원)" | "강변(3만원)" | "없음";
     date: string;
+    rental_equipment: boolean;
+    rental_clothes: boolean;
+    lift_ticket: boolean;
 }
 
 export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModalProps) {
@@ -35,6 +38,9 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
         footSize: "",
         shuttle: "없음",
         date: "",
+        rental_equipment: false,
+        rental_clothes: false,
+        lift_ticket: false,
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +67,12 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                     <li><strong>셔틀:</strong> ${formData.shuttle}</li>
                     <li><strong>희망날짜:</strong> ${formData.date}</li>
                 </ul>
+                <h3>추가 옵션</h3>
+                <ul>
+                    <li><strong>장비 렌탈:</strong> ${formData.rental_equipment ? "신청" : "미신청"} (15,000원)</li>
+                    <li><strong>의류 렌탈:</strong> ${formData.rental_clothes ? "신청" : "미신청"} (10,000원)</li>
+                    <li><strong>리프트권:</strong> ${formData.lift_ticket ? "신청" : "미신청"} (45,000원)</li>
+                </ul>
                 <p>예약 시간: ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p>
             `;
 
@@ -82,6 +94,11 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 - 발사이즈: ${formData.footSize}mm
 - 셔틀: ${formData.shuttle}
 - 희망날짜: ${formData.date}
+
+예가 옵션
+- 장비 렌탈: ${formData.rental_equipment ? "신청" : "미신청"} (15,000원)
+- 의류 렌탈: ${formData.rental_clothes ? "신청" : "미신청"} (10,000원)
+- 리프트권: ${formData.lift_ticket ? "신청" : "미신청"} (45,000원)
 
 예약 시간: ${new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
             `;
@@ -115,115 +132,128 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
 
         if (name === "date" && value) {
             const selectedDate = new Date(value);
             const dayOfWeek = selectedDate.getDay();
 
             if (dayOfWeek !== 6) {
-                // 6은 토요일을 의미
                 alert("죄송합니다. 현재 토요일만 예약이 가능합니다.");
                 return;
             }
         }
 
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (type === "checkbox") {
+            const checked = (e.target as HTMLInputElement).checked;
+            setFormData((prev) => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-            <div className='bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative'>
-                <button onClick={onClose} className='absolute right-4 top-4 text-gray-500 hover:text-gray-700'>
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+            <div className='bg-white rounded-lg p-4 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative'>
+                <button
+                    onClick={onClose}
+                    className='absolute right-2 sm:right-4 top-2 sm:top-4 text-gray-500 hover:text-gray-700'
+                >
                     <X className='w-6 h-6' />
                 </button>
 
-                <h2 className='text-2xl font-bold mb-6'>예약하기</h2>
+                <h2 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6'>예약하기</h2>
 
-                <form onSubmit={handleSubmit} className='space-y-6'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <form onSubmit={handleSubmit} className='space-y-4 sm:space-y-6'>
+                    <div className='grid grid-cols-1 gap-4 sm:gap-6'>
                         {/* 기본 정보 */}
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>이름</label>
-                            <input
-                                type='text'
-                                name='name'
-                                value={formData.name}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            />
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>이름</label>
+                                <input
+                                    type='text'
+                                    name='name'
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>나이</label>
+                                <input
+                                    type='number'
+                                    name='age'
+                                    value={formData.age}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                />
+                            </div>
                         </div>
 
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>나이</label>
-                            <input
-                                type='number'
-                                name='age'
-                                value={formData.age}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            />
-                        </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>성별</label>
+                                <select
+                                    name='gender'
+                                    value={formData.gender}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                >
+                                    <option value='남성'>남성</option>
+                                    <option value='여성'>여성</option>
+                                </select>
+                            </div>
 
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>성별</label>
-                            <select
-                                name='gender'
-                                value={formData.gender}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            >
-                                <option value='남성'>남성</option>
-                                <option value='여성'>여성</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>연락처</label>
-                            <input
-                                type='tel'
-                                name='phone'
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                placeholder='010-0000-0000'
-                                required
-                            />
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>연락처</label>
+                                <input
+                                    type='tel'
+                                    name='phone'
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    placeholder='010-0000-0000'
+                                    required
+                                />
+                            </div>
                         </div>
 
                         {/* 장비 및 실력 */}
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>장비 선택</label>
-                            <select
-                                name='equipment'
-                                value={formData.equipment}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            >
-                                <option value='스키'>스키</option>
-                                <option value='보드'>보드</option>
-                            </select>
-                        </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>장비 선택</label>
+                                <select
+                                    name='equipment'
+                                    value={formData.equipment}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                >
+                                    <option value='스키'>스키</option>
+                                    <option value='보드'>보드</option>
+                                </select>
+                            </div>
 
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>실력</label>
-                            <select
-                                name='level'
-                                value={formData.level}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            >
-                                <option value='초급'>초급</option>
-                                <option value='중급'>중급</option>
-                                <option value='상급'>상급</option>
-                            </select>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>실력</label>
+                                <select
+                                    name='level'
+                                    value={formData.level}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                >
+                                    <option value='초급'>초급</option>
+                                    <option value='중급'>중급</option>
+                                    <option value='상급'>상급</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* 패키지 선택 */}
@@ -233,7 +263,7 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                 name='package'
                                 value={formData.package}
                                 onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
+                                className='w-full px-3 py-2 border rounded-md text-base'
                                 required
                             >
                                 <option value='기본'>올인클루시브 (160,000원)</option>
@@ -243,102 +273,112 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                         </div>
 
                         {/* 추가 옵션 */}
-                        <div className='col-span-2'>
-                            <label className='block text-sm font-medium text-gray-700 mb-3'>추가 옵션</label>
-                            <div className='space-y-3'>
+                        <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>추가 옵션</label>
+                            <div className='space-y-2'>
                                 <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
-                                    <label className='flex items-center gap-2'>
+                                    <label className='flex items-center gap-2 flex-1'>
                                         <input
                                             type='checkbox'
                                             name='rental_equipment'
                                             className='rounded text-blue-600'
                                         />
-                                        <span>장비 렌탈 (스키/보드)</span>
+                                        <span className='text-sm'>장비 렌탈 (스키/보드)</span>
                                     </label>
-                                    <span className='text-blue-600 font-medium'>15,000원</span>
+                                    <span className='text-blue-600 font-medium text-sm whitespace-nowrap'>
+                                        15,000원
+                                    </span>
                                 </div>
                                 <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
-                                    <label className='flex items-center gap-2'>
+                                    <label className='flex items-center gap-2 flex-1'>
                                         <input
                                             type='checkbox'
                                             name='rental_clothes'
                                             className='rounded text-blue-600'
                                         />
-                                        <span>의류 렌탈</span>
+                                        <span className='text-sm'>의류 렌탈</span>
                                     </label>
-                                    <span className='text-blue-600 font-medium'>10,000원</span>
+                                    <span className='text-blue-600 font-medium text-sm whitespace-nowrap'>
+                                        10,000원
+                                    </span>
                                 </div>
                                 <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
-                                    <label className='flex items-center gap-2'>
+                                    <label className='flex items-center gap-2 flex-1'>
                                         <input type='checkbox' name='lift_ticket' className='rounded text-blue-600' />
-                                        <span>리프트권 (4시간)</span>
+                                        <span className='text-sm'>리프트권 (4시간)</span>
                                     </label>
-                                    <span className='text-blue-600 font-medium'>45,000원</span>
+                                    <span className='text-blue-600 font-medium text-sm whitespace-nowrap'>
+                                        45,000원
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
                         {/* 신체 정보 */}
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>키 (cm)</label>
-                            <input
-                                type='number'
-                                name='height'
-                                value={formData.height}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            />
-                        </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>키 (cm)</label>
+                                <input
+                                    type='number'
+                                    name='height'
+                                    value={formData.height}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                />
+                            </div>
 
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>발 사이즈 (mm)</label>
-                            <input
-                                type='number'
-                                name='footSize'
-                                value={formData.footSize}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            />
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>발 사이즈 (mm)</label>
+                                <input
+                                    type='number'
+                                    name='footSize'
+                                    value={formData.footSize}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                />
+                            </div>
                         </div>
 
                         {/* 셔틀 및 날짜 */}
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>셔틀버스</label>
-                            <select
-                                name='shuttle'
-                                value={formData.shuttle}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            >
-                                <option value='없음'>이용 안함</option>
-                                <option value='기본(1만원)'>기본 셔틀 (1만원)</option>
-                                <option value='강변(3만원)'>강변 왕복 (3만원)</option>
-                            </select>
-                        </div>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>셔틀버스</label>
+                                <select
+                                    name='shuttle'
+                                    value={formData.shuttle}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                >
+                                    <option value='없음'>이용 안함</option>
+                                    <option value='기본(1만원)'>기본 셔틀 (1만원)</option>
+                                    <option value='강변(3만원)'>강변 왕복 (3만원)</option>
+                                </select>
+                            </div>
 
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>
-                                희망 날짜 (토요일만 가능)
-                            </label>
-                            <input
-                                type='date'
-                                name='date'
-                                value={formData.date}
-                                onChange={handleChange}
-                                className='w-full px-3 py-2 border rounded-md'
-                                required
-                            />
-                            <p className='text-xs text-red-500 mt-1'>* 토요일만 예약 가능합니다.</p>
+                            <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                    희망 날짜 (토요일만 가능)
+                                </label>
+                                <input
+                                    type='date'
+                                    name='date'
+                                    value={formData.date}
+                                    onChange={handleChange}
+                                    className='w-full px-3 py-2 border rounded-md text-base'
+                                    required
+                                />
+                                <p className='text-xs text-red-500 mt-1'>* 토요일만 예약 가능합니다.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div className='flex justify-end mt-6'>
                         <button
                             type='submit'
-                            className='bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2'
+                            className='w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2'
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
