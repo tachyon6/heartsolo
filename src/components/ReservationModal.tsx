@@ -281,6 +281,8 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                         <input
                                             type='checkbox'
                                             name='rental_equipment'
+                                            checked={formData.rental_equipment}
+                                            onChange={handleChange}
                                             className='rounded text-blue-600'
                                         />
                                         <span className='text-sm'>장비 렌탈 (스키/보드)</span>
@@ -294,6 +296,8 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                         <input
                                             type='checkbox'
                                             name='rental_clothes'
+                                            checked={formData.rental_clothes}
+                                            onChange={handleChange}
                                             className='rounded text-blue-600'
                                         />
                                         <span className='text-sm'>의류 렌탈</span>
@@ -304,7 +308,13 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
                                 </div>
                                 <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
                                     <label className='flex items-center gap-2 flex-1'>
-                                        <input type='checkbox' name='lift_ticket' className='rounded text-blue-600' />
+                                        <input
+                                            type='checkbox'
+                                            name='lift_ticket'
+                                            checked={formData.lift_ticket}
+                                            onChange={handleChange}
+                                            className='rounded text-blue-600'
+                                        />
                                         <span className='text-sm'>리프트권 (4시간)</span>
                                     </label>
                                     <span className='text-blue-600 font-medium text-sm whitespace-nowrap'>
