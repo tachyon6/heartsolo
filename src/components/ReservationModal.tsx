@@ -45,6 +45,16 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // 토요일 체크
+        const selectedDate = new Date(formData.date);
+        const dayOfWeek = selectedDate.getDay();
+
+        if (dayOfWeek !== 6) {
+            alert("죄송합니다. 현재 토요일만 예약이 가능합니다.");
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             // HTML 형식의 이메일 내용 생성
@@ -133,16 +143,6 @@ export function ReservationModal({ isOpen, onClose, onSubmit }: ReservationModal
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-
-        if (name === "date" && value) {
-            const selectedDate = new Date(value);
-            const dayOfWeek = selectedDate.getDay();
-
-            if (dayOfWeek !== 6) {
-                alert("죄송합니다. 현재 토요일만 예약이 가능합니다.");
-                return;
-            }
-        }
 
         if (type === "checkbox") {
             const checked = (e.target as HTMLInputElement).checked;
